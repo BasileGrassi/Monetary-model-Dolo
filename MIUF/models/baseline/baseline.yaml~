@@ -1,0 +1,78 @@
+name: MIUF Walsh
+
+declarations:
+
+    states: [k, M, z, u]
+
+    controls: [n, c, R, p]    
+
+    auxiliary:  [y, theta, X,m]
+
+    shocks: [e_z,e_u]
+
+    parameters: [eta, Psi, Phi, a, b, beta, alpha, delta, theta_ss, gamma, varphi, rho, sigma_z, sigma_u, H]
+
+equations:
+
+    transition: 
+        - k = (1-delta)*k(-1)+y(-1)-c(-1) 
+        - M = (1+gamma*u(-1)+varphi*z(-1)+e_u+theta_ss)*M(-1)
+        - z = rho*z(-1)+e_z
+        - u = gamma*u(-1)+varphi*z(-1)+e_u
+
+
+    auxiliary:
+        - y = exp(z)*k^alpha*n^(1-alpha)
+        - theta = u+theta_ss             
+        - X = a*c^(1-b)+(1-a)*(M/p)^(1-b)
+        - m = M/p
+        
+        
+
+    arbitrage:
+        - Psi*(1-n)^(-eta)/(a*X^((b-Phi)/(1-b))*c^(-b)) = (1-alpha)*y/n         | -inf <= n <= inf
+        - X^((b-Phi)/(1-b))*a*c^(-b)= beta*R*X(1)^((b-Phi)/(1-b))*a*c(1)^(-b)   | -inf <= c <= inf
+        - R=alpha*y(1)/k+1-delta                                                | -inf <= R <= inf
+        - (1-a)/a*(M/p/c)^(-b) = (R*(1+((p(1)-p)/p))-1)/(R*(1+((p(1)-p)/p)))                           | -inf <= p <= inf
+
+        
+
+calibration:
+
+    parameters:
+        eta: 1
+        H: (((1+(a/(1-a))^(-1/b)*((1+theta_ss-beta)/(1+theta_ss))^((b-1)/b))^((b-Phi)/(1-b)))/(n^Phi/(1-n)^(eta)))^(-1)
+        Psi: ((1-alpha)/H)*(y/k)^(-alpha/(1-alpha))*a^((1-Phi)/(1-b))*(c/k)^(-Phi)*(n/k)^(Phi)
+        Phi: 2
+        a: 0.95
+        b: 2.56
+        beta: 0.989
+        alpha: 0.36
+        delta: 0.019
+        theta_ss: 0.0125
+        gamma: 0.5
+        varphi: 0
+        rho: 0.95
+        sigma_z: 0.007
+        sigma_u: 0.0089
+        
+
+    steady_state:
+        n: 1/3
+        R: 1/beta
+        k: n*(1/alpha*(R-1+delta))^(1/(alpha-1))
+        y: k*1/alpha*(R-1+delta)
+        c: y-delta*k
+        p: 1
+        M: p*(a/(1-a))^(-1/b)*((1+theta_ss-beta)/(1+theta_ss))^(-1/b)*c
+        z: 0
+        u: 0
+        theta: theta_ss
+        X: a*c^(1-b)+(1-a)*(M/p)^(1-b)
+        m: M/p
+
+covariances: |
+        [[ sigma_z**2, 0],
+         [0, sigma_u**2]],
+        
+        
