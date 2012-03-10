@@ -1,0 +1,75 @@
+name: MIUF Walsh
+#Warning the definition of mm=M/P(-1) so the real money balance is m = mm/(1+PI)
+
+declarations:
+
+    states: [k, mm, z, u]
+
+    controls: [c, R, PI]    
+
+    auxiliary:  [y, theta, m, uc, um]
+
+    shocks: [e_z,e_u]
+
+    parameters: [a, beta, alpha, delta, theta_ss, gamma, varphi, rho, sigma_z, sigma_u]
+
+equations:
+
+    transition: 
+        - k = (1-delta)*k(-1)+y(-1)-c(-1) 
+        - mm = (1+theta_ss+gamma*u(-1)+varphi*z(-1)+e_u)/(1+PI(-1))*mm(-1)
+        - z = rho*z(-1)+e_z
+        - u = gamma*u(-1)+varphi*z(-1)+e_u
+
+
+    auxiliary:
+        - y = exp(z)*k^alpha
+        - theta = u+theta_ss
+        - m = mm/(1+PI)
+        - uc= a/c
+        - um= (1-a)/(mm/(1+PI))
+
+
+    arbitrage:
+        - uc= beta*R*uc(1)                                                      | -inf <= c <= inf
+        - R=alpha*y(1)/k(1)+1-delta                                             | -inf <= R <= inf
+        - um/uc = 1-beta*uc(1)/uc*(1/(1+PI(1)))                                 | -inf <= PI <= inf
+
+
+
+        
+
+calibration:
+
+    parameters:
+        beta: 0.989
+        a: 0.95
+        alpha: 0.36
+        delta: 0.019
+        theta_ss: 0.0125
+        gamma: 0.5
+        varphi: 0
+        rho: 0.95
+        sigma_z: 0.007
+        sigma_u: 0.0089
+
+    steady_state:
+        R: 1/beta
+        k: (1/alpha*(R-1+delta))^(1/(alpha-1))
+        y: k*1/alpha*(R-1+delta)
+        c: y-delta*k
+        PI: theta
+        mm: (a/(1-a))^(-1)*((1+theta_ss-beta)/(1+theta_ss))^(-1)*c*(1+PI)
+        z: 0
+        u: 0 +varphi*z
+        theta: theta_ss
+        m: mm/(1+PI)
+        uc: a/c
+        um: (1-a)/(mm/(1+PI))
+
+
+covariances: |
+        [[ sigma_z**2, 0],
+         [0, sigma_u**2]],
+        
+        
