@@ -18,72 +18,45 @@ model_name = 'baseline';
 none=[];
 model = feval( [model_name '_model']);
 
-%% Define regular shocks (non discrete)
-N_shocks = 5;
-[epsi,w]=hernodes(N_shocks);
-isigma=strmatch('sigma',model.parameters, 'exact');
-%isigma=23;
-sigma = [[model.params(isigma)]];
-e = sigma*epsi;
+% Define shocks
+N_shocks = [5 5];
+
+isigma_z=strmatch('sigma_z',model.parameters, 'exact');
+sigma_z=model.params(isigma_z);
+
+isigma_u=strmatch('sigma_u',model.parameters, 'exact');
+sigma_u=model.params(isigma_u);
+
+sig = diag( [sigma_z sigma_u] );
+m = [0 0];
+[e,w] = qnwnorm(N_shocks,m,sig);
+
+%% Define the grid
+ss = model.s_ss;
+
+smin = [ 10, 1 -0.0210, -0.0267 ];
+smax = [ 20, 2, 0.0210, 0.0267 ];
+         
+orders = [10, 5, 5, 5];
 
 
-%% Defined the grid
-nstate=length(model.states);
-k_pts       = 10;
-l_pts       = 10;
-z_pts       = 4;
-d_pts       = 2;
+%% Define interpolator
 
+cdef=fundefn('lin', orders, smin, smax);
+nodes = funnode(cdef);
+grid = gridmake(nodes);
 
-%Size of the State Space
-faktor = 1;
-
-% K is beginning of period capital stock (level)
-ik=strmatch('k', model.states,'exact');
-kmin    = model.s_ss(ik) - 0.5*faktor;
-kmax    = model.s_ss(ik) + 6.0*faktor;
-kstep   = (kmax-kmin)/k_pts;
-k_grid  = kmin:kstep:kmax;
-nk      = length(k_grid);
-
-% L is beginning period of debt (level)
-il=strmatch('l', model.states,'exact');
-lmin    = model.s_ss(il) - 0.05*faktor;
-lmax    = model.s_ss(il) + 0.60*faktor;
-lstep   = (lmax-lmin)/l_pts;
-l_grid  = lmin:lstep:lmax;
-nl      = length(l_grid);
-
-% Z is current bargaining power
-zmin    = 1 - 0.08*faktor;
-zmax    = 1 + 0.0065*faktor;
-zstep   = (zmax-zmin)/z_pts;
-z_grid  = zmin:zstep:zmax;
-nz      = length(z_grid);
-
-% D is current default status
-d_grid  = [0,1];
-nd=size(d_grid,2);
-   
-%% Create the grid
-grid=gridmake(k_grid',l_grid', z_grid', d_grid');
 ns = size(grid,1);
-    
-% Define interpolator
-order=[nk nl nz nd];
-gridmin=[kmin lmin zmin 0];
-gridmax=[kmax lmax zmax 1];
-cdef=fundefn('lin',order,gridmin,gridmax);
 
 
-% Convergence criteria
-tol=1e-10;
-maxiteration=1000;
+%% Convergence criteria
+tol=1e-3;
+maxiteration=5000;
 
 % Initialization using first order d.r.
 x_ss = model.x_ss;
 s_ss = model.s_ss;
-X_s = initial_guess(model, model.s_ss, model.x_ss);    %X_s = model.X{2};
+X_s = model.X{2};
 xinit=x_ss*ones(1,ns)+X_s*(grid'-s_ss*ones(1,ns));
 x=xinit';
 
@@ -109,10 +82,7 @@ while converge==0 && iteration < maxiteration
     
     [coeff,B]=funfitxy(cdef, grid, x);
     
-    %fobj = @(xt) step_residuals_endo(grid, xt, e, w, model.params, model, coeff, cdef, hom);
-    %[x_up, nit] = newton_solver(fobj, x, 50);
-
-    fobj = @(xt) step_residuals_endo_nodiff(grid, xt, e, w, model.params, model, coeff, cdef, hom);
+    fobj = @(xt) step_residuals_nodiff(grid, xt, e, w, model.params, model, coeff, cdef, hom);
     [x_up, nit] = newton_solver_diff(fobj, x, 50);
     
     err=sum(sum(abs(x-x_up)));
@@ -148,14 +118,12 @@ if iteration > maxiteration
 end
 
 %% Save the grid
-grille.nstate= nstate;
-grille.pts= [k_pts l_pts z_pts d_pts];
-grille.max= gridmax;
-grille.min=gridmin;
-grille.step= [kstep lstep zstep 1];
-grille.order=[nk nl nz nd];
+grille.smax= smax;
+grille.smin=smin;
+grille.orders=orders;
+grille.nodes=nodes;
 grille.grid=grid;
-grille.npts=ns;
+grille.ns=ns;
 
 grid=grille;
 
