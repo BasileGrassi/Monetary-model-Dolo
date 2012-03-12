@@ -7,7 +7,7 @@ declarations:
 
     controls: [n, c, R, PI]    
 
-    auxiliary:  [y, theta, X, m, uc, um, un]
+    auxiliary:  [I,y, theta, X, m, uc, um, un]
 
     shocks: [e_z,e_u]
 
@@ -27,16 +27,18 @@ equations:
         - theta = u+theta_ss             
         - X = a*c^(1-b)+(1-a)*(mm/(1+PI))^(1-b)
         - m = mm/(1+PI)
-#        - uc= a*X^((b-Phi)/(1-b))*c^(-b)
-#        - um= (1-a)*X^((b-Phi)/(1-b))*(mm/(1+PI))^(-b)
+#       - uc= a*X^((b-Phi)/(1-b))*c^(-b)
+#       - um= (1-a)*X^((b-Phi)/(1-b))*(m)^(-b)
         - uc= a*(a*c^(1-b)+(1-a)*(mm/(1+PI))^(1-b))^((b-Phi)/(1-b))*c^(-b)
         - um= (1-a)*(a*c^(1-b)+(1-a)*(mm/(1+PI))^(1-b))^((b-Phi)/(1-b))*(mm/(1+PI))^(-b)
         - un= Psi*(1-n)^(-eta)
+        - I=R*(1+PI(1))
 
     arbitrage:
         - un/uc = (1-alpha)*y/n         | -inf <= n <= inf
         - uc= beta*R*uc(1)                                                      | -inf <= c <= inf
         - R=alpha*y(1)/k(1)+1-delta                                             | -inf <= R <= inf
+#       - um/uc = (R*(1+PI(1))-1)/(R*(1+PI(1)))            | -inf <= PI <= inf
         - um/uc = 1-beta*uc(1)/uc*(1/(1+PI(1)))            | -inf <= PI <= inf
 
 
@@ -78,6 +80,7 @@ calibration:
         uc: X^((b-Phi)/(1-b))*a*c^(-b)
         um: (1-a)*X^((b-Phi)/(1-b))*(mm/(1+PI))^(-b)
         un: Psi*(1-n)^(-eta)
+        I: R
 
     covariances: |
         [[ sigma_z**2, 0],

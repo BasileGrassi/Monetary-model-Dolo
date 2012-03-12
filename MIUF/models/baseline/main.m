@@ -36,9 +36,9 @@ m = [0 0];
 ss = model.s_ss;
 
 smin = [ 15, 1.3,-0.03, -0.03 ];
-smax = [ 16, 1.6, 0.03, 0.03 ];
+smax = [ 16.5,1.6, 0.03, 0.03 ];
          
-orders = [5, 5, 5, 5];
+orders = [10, 10, 5, 5];
 
 
 %% Define interpolator

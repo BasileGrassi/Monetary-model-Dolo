@@ -23,7 +23,7 @@ load nolabor_log_sol;
 
 %% Configure the exogenous fundalmentals
 exo.n=2;
-N=16;
+N=70;
 exo.T=N;
 paramirf.namepercent={'R', 'PI', 'theta','u','z'}; %give the name of variable which you want differenc from steady state
 
@@ -44,11 +44,8 @@ RES_baseline=irf(exo, paramirf, grid, rule, model);
 
 
 %% Linear Decision Rule
-%Define exogeneous path
-e_z=zeros(N,1);
-e_u=[1; zeros(N-1,1)];
 
-exo.e=[e_z,e_u];
+
 
 %The shape of irf's benchmarks
 paramirf.range=[1 N];
@@ -71,4 +68,4 @@ rule_dr1.cdef=rule.cdef;
 
 
 %Compute and Plot IRF
-RES_dr1=irf(exo, paramirf, grid, rule_dr1, model);
+RES_dr1=irf_ordre1(exo, paramirf, grid, rule, model);
