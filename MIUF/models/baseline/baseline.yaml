@@ -79,7 +79,7 @@ calibration:
         um: (1-a)*X^((b-Phi)/(1-b))*(mm/(1+PI))^(-b)
         un: Psi*(1-n)^(-eta)
 
-covariances: |
+    covariances: |
         [[ sigma_z**2, 0],
          [0, sigma_u**2]],
         
