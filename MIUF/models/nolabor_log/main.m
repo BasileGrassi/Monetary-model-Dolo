@@ -27,17 +27,17 @@ sigma_z=model.params(isigma_z);
 isigma_u=strmatch('sigma_u',model.parameters, 'exact');
 sigma_u=model.params(isigma_u);
 
-sig = diag( [sigma_z sigma_u] );
+sig = diag( [sigma_z^2 sigma_u^2] );
 m = [0 0];
 [e,w] = qnwnorm(N_shocks,m,sig);
 
 %% Define the grid
 ss = model.s_ss;
 
-smin = [ 10, 1 -0.3, -0.3 ];
-smax = [ 20, 2, 0.3, 0.3 ];
+smin = [  46, 6 -0.03, -0.03 ];
+smax = [ 50, 8, 0.03, 0.03 ];
          
-orders = [10, 5, 5, 5];
+orders = [10, 10, 5, 5];
 
 
 %% Define interpolator
@@ -50,7 +50,7 @@ ns = size(grid,1);
 
 
 %% Convergence criteria
-tol=1e-3;
+tol=1e-10;
 maxiteration=5000;
 
 % Initialization using first order d.r.
