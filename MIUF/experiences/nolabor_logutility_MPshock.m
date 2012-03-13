@@ -23,7 +23,7 @@ load nolabor_log_sol;
 
 %% Configure the exogenous fundalmentals
 exo.n=2;
-N=70;
+N=16;
 exo.T=N;
 paramirf.namepercent={'R', 'PI', 'theta','u','z'}; %give the name of variable which you want differenc from steady state
 
@@ -35,7 +35,8 @@ e_u=[1; zeros(N-1,1)];
 exo.e=[e_z,e_u];
 
 %The shape of irf's benchmarks
-paramirf.range=[1 N];
+T=16;
+paramirf.range=[1 T];
 paramirf.style='-b';
 paramirf.width=2;
 
