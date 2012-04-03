@@ -84,7 +84,7 @@ while converge==0 && iteration < maxiteration
     [coeff,B]=funfitxy(cdef, grid, x);
     
     fobj = @(xt) step_residuals_nodiff(grid, xt, e, w, model.params, model, coeff, cdef, hom);
-    [x_up, nit] = newton_solver_diff(fobj, x, 50);
+    %[x_up, nit] = newton_solver_diff(fobj, x, 50);
     %x_up=fsolve(fobj,x);nit=-1;
     
     err=sum(sum(abs(x-x_up)));
